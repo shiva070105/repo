@@ -36,10 +36,12 @@ class CandidateElimination:
                 if self.S[i].pop() != instance[i]:
                     remove_indices.append(j)
             for index in remove_indices:
-                self.S[i].pop(index)
-
+                if index < len(self.S[i]):  # Check if index is still within bounds
+                    self.S[i].pop(index)
+    
             if instance[i] not in self.G[i]:
                 self.G[i].add(instance[i])
+
 
     def get_hypotheses(self):
         return self.S, self.G
