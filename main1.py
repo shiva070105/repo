@@ -1,4 +1,4 @@
-import copy
+import streamlit as st
 
 class CandidateElimination:
     def __init__(self, num_attributes):
@@ -26,7 +26,8 @@ class CandidateElimination:
                 if self.G[i].pop() not in instance:
                     remove_indices.append(j)
             for index in remove_indices:
-                self.G[i].pop(index)
+                if index < len(self.G[i]):  # Check if index is still within bounds
+                    self.G[i].pop(index)
 
     def generalize(self, instance):
         for i in range(len(instance)):
@@ -38,30 +39,35 @@ class CandidateElimination:
             for index in remove_indices:
                 if index < len(self.S[i]):  # Check if index is still within bounds
                     self.S[i].pop(index)
-    
+
             if instance[i] not in self.G[i]:
                 self.G[i].add(instance[i])
-
 
     def get_hypotheses(self):
         return self.S, self.G
 
-# Example usage:
-data = [
-    ['sunny', 'warm', 'normal', 'strong', 'warm', 'same', 'yes'],
-    ['sunny', 'warm', 'high', 'strong', 'warm', 'same', 'yes'],
-    ['rainy', 'cold', 'high', 'strong', 'warm', 'change', 'no'],
-    ['sunny', 'warm', 'high', 'strong', 'cool', 'change', 'yes']
-]
+def main():
+    st.title("Candidate Elimination Algorithm")
 
-ce = CandidateElimination(num_attributes=len(data[0])-1)
-ce.fit(data)
-S, G = ce.get_hypotheses()
+    # Example dataset
+    data = [
+        ['sunny', 'warm', 'normal', 'strong', 'warm', 'same', 'yes'],
+        ['sunny', 'warm', 'high', 'strong', 'warm', 'same', 'yes'],
+        ['rainy', 'cold', 'high', 'strong', 'warm', 'change', 'no'],
+        ['sunny', 'warm', 'high', 'strong', 'cool', 'change', 'yes']
+    ]
 
-print("Final Specific Hypothesis:")
-for hypothesis in S:
-    print(hypothesis)
+    ce = CandidateElimination(num_attributes=len(data[0])-1)
+    ce.fit(data)
+    S, G = ce.get_hypotheses()
 
-print("\nFinal General Hypothesis:")
-for hypothesis in G:
-    print(hypothesis)
+    st.subheader("Final Specific Hypothesis:")
+    for hypothesis in S:
+        st.write(hypothesis)
+
+    st.subheader("Final General Hypothesis:")
+    for hypothesis in G:
+        st.write(hypothesis)
+
+if __name__ == "__main__":
+    main()
