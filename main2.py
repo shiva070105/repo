@@ -37,5 +37,5 @@ def main():
         st.success(f"The predicted class is {iris.target_names[prediction[0]]}")
 
 # Run the app
-if __name__ == "__main__":
+if __name__ == "__main2__":
     main()
