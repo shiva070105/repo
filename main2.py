@@ -35,7 +35,7 @@ def main():
         instance = pd.DataFrame([input_features])
         prediction = clf.predict(instance)
         st.success(f"The predicted class is {iris.target_names[prediction[0]]}")
-
 # Run the app
 if __name__ == "__main__":
     main()
+
