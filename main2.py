@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.datasets import load_iris
+import sklearn.datasets as datasets
 from sklearn.tree import DecisionTreeClassifier, export_text
 
 # Define the Streamlit app
@@ -8,7 +8,7 @@ def main():
     st.title("ID3 Algorithm Demo")
 
     # Load the Iris dataset
-    iris = load_iris()
+    iris = datasets.load_iris()
     X = pd.DataFrame(iris.data, columns=iris.feature_names)
     y = pd.Series(iris.target)
 
@@ -36,6 +36,6 @@ def main():
         prediction = clf.predict(instance)
         st.success(f"The predicted class is {iris.target_names[prediction[0]]}")
 
+# Run the app
 if __name__ == "__main__":
     main()
-
