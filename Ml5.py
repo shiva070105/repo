@@ -1,59 +1,61 @@
-from sklearn.preprocessing import LabelEncoder
 import streamlit as st
 import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report
 
-# Verify installation of scikit-learn
-try:
-  from sklearn.naive_bayes import GaussianNB
-  from sklearn.model_selection import train_test_split
-  from sklearn.metrics import accuracy_score
-except ImportError as e:
-  st.error("Error importing scikit-learn packages. Please ensure scikit-learn is installed in your environment.")
-  raise e
+# Load Iris dataset
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = pd.Series(iris.target, name='species')
 
-# Function to encode features
-def encode_features(df, columns):
-  encoders = {}
-  for column in columns:
-    encoder = LabelEncoder()
-    df[column] = encoder.fit_transform(df[column])
-    encoders[column] = encoder
-  return df, encoders
+# Sidebar
+st.sidebar.title('Naive Bayes Classifier')
+st.sidebar.markdown('Select the classifier and parameters.')
 
-# Load data from CSV
-data = pd.read_csv('tennisdata.csv')
-st.write("The first 5 rows of the dataset are:")
-st.write(data.head())
+# Display dataset
+if st.sidebar.checkbox('Show raw data'):
+    st.subheader('Iris Dataset (First 10 rows)')
+    st.write(X.head(10))
+    st.write(f'Target names: {iris.target_names}')
 
-# Separate features (X) and target (y)
-X = data.iloc[:, :-1]
-y = data.iloc[:, -1]
+# Model Selection
+classifier_name = st.sidebar.selectbox('Select Classifier', ['Gaussian Naive Bayes'])
+test_size = st.sidebar.slider('Test set size (%)', 10, 50, 30, 5)
 
-st.write("The first 5 rows of the features are:")
-st.write(X.head())
-st.write("The first 5 values of the target are:")
-st.write(y.head())
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size / 100, random_state=0)
 
-# Encode the categorical features and target
-X, feature_encoders = encode_features(X, X.columns)
-
-# Encode the target variable
-target_encoder = LabelEncoder()
-y = target_encoder.fit_transform(y)
-
-st.write("Encoded features:")
-st.write(X.head())
-st.write("Encoded target:")
-st.write(y)
-
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-
-# Initialize and train the Gaussian Naive Bayes classifier
+# Model training
 classifier = GaussianNB()
 classifier.fit(X_train, y_train)
 
-# Make predictions and calculate accuracy
+# Model evaluation
 y_pred = classifier.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
-st.write("Accuracy of the model:", accuracy)
+st.write(f'Accuracy: {accuracy:.2f}')
+
+# Display classification report
+st.subheader('Classification Report')
+st.text(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+# Display predictions
+if st.checkbox('Show predictions'):
+    st.subheader('Predictions')
+    prediction_df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+    prediction_df['Correct'] = prediction_df['Actual'] == prediction_df['Predicted']
+    st.write(prediction_df)
+
+# Sidebar Footer
+st.sidebar.markdown("""
+[Get the source code](https://github.com/streamlit/demo-iris)
+""")
+
+# Footer
+st.text("")
+st.text("")
+st.text("")
+st.text("")
+st.text("")
+st.text("")
