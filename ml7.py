@@ -24,7 +24,8 @@ iris_data = {
 df = pd.DataFrame(data=iris_data['data'], columns=['sepal_length', 'sepal_width', 'petal_length', 'petal_width'])
 
 # Streamlit app
-st.title('Iris Flower Species Prediction')
+st.title('Cloud Storms')
+st.header('Iris Flower Species Prediction')
 st.sidebar.header('User Input Parameters')
 
 # Function to get user inputs
