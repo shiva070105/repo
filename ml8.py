@@ -1,85 +1,58 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 
-# Define the Iris dataset with the first 10 data points
-iris_data = {
-    "data": np.array([
-        [5.1, 3.5, 1.4, 0.2],
-        [4.9, 3.0, 1.4, 0.2],
-        [4.7, 3.2, 1.3, 0.2],
-        [4.6, 3.1, 1.5, 0.2],
-        [5.0, 3.6, 1.4, 0.2],
-        [5.4, 3.9, 1.7, 0.4],
-        [4.6, 3.4, 1.4, 0.3],
-        [5.0, 3.4, 1.5, 0.2],
-        [4.4, 2.9, 1.4, 0.2],
-        [4.9, 3.1, 1.5, 0.1],
-    ]),
-    "target": np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-}
+# Function to generate sample data
+def generate_data(num_samples):
+    np.random.seed(0)
+    X = np.random.randn(num_samples, 2)
+    return X
 
-# Manually split the data into training and testing sets
-# Using the first 7 data points for training and the last 3 for testing
-X_train = iris_data["data"][:7]
-X_test = iris_data["data"][7:]
-y_train = iris_data["target"][:7]
-y_test = iris_data["target"][7:]
+# Function for K-means clustering
+def kmeans_clustering(X, num_clusters):
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0)
+    y_kmeans = kmeans.fit_predict(X)
+    return kmeans.cluster_centers_, y_kmeans
 
-# Define a K-Nearest Neighbors classifier manually
-class KNeighborsClassifierCustom:
-    def _init_(self, n_neighbors=1):
-        self.n_neighbors = n_neighbors
-        self.X_train = None
-        self.y_train = None
-    
-    def fit(self, X_train, y_train):
-        self.X_train = X_train
-        self.y_train = y_train
-        
-    def predict(self, X_test):
-        predictions = []
-        for x in X_test:
-            distances = np.sqrt(np.sum((self.X_train - x) ** 2, axis=1))
-            nearest_neighbors = np.argsort(distances)[:self.n_neighbors]
-            prediction = np.argmax(np.bincount(self.y_train[nearest_neighbors]))
-            predictions.append(prediction)
-        return np.array(predictions)
-    
-# Initialize and train the KNeighborsClassifierCustom
-kn = KNeighborsClassifierCustom(n_neighbors=1)
-kn.fit(X_train, y_train)
+# Function for EM (Gaussian Mixture Model) clustering
+def em_clustering(X, num_components):
+    gmm = GaussianMixture(n_components=num_components, random_state=0)
+    gmm.fit(X)
+    y_gmm = gmm.predict(X)
+    return gmm.means_, y_gmm
 
-# Streamlit app title
-st.title("Iris Dataset KNN Classifier")
+# Main Streamlit app
+def main():
+    st.title('Clustering Algorithms Demo')
 
-# Display the dataset
-st.write("### Iris Dataset")
-iris_df = pd.DataFrame(iris_data["data"], columns=["sepal length", "sepal width", "petal length", "petal width"])
-iris_df['target'] = iris_data["target"]
-st.write(iris_df.head())
+    # Sidebar to input parameters
+    st.sidebar.header('Parameters')
+    num_samples = st.sidebar.slider('Number of samples', min_value=50, max_value=200, value=100)
+    num_clusters = st.sidebar.slider('Number of clusters (K-means)', min_value=2, max_value=5, value=3)
+    num_components = st.sidebar.slider('Number of components (Gaussian Mixture)', min_value=2, max_value=5, value=3)
 
-# Display predictions
-st.write("### Predictions")
-results = []
-for i in range(len(X_test)):
-    x = X_test[i]
-    prediction = kn.predict([x])
-    result = {
-        "Target": y_test[i],
-        "Predicted": prediction[0],
-    }
-    results.append(result)
-predictions_df = pd.DataFrame(results)
-st.write(predictions_df)
+    # Generate sample data
+    X = generate_data(num_samples)
 
-# Calculate accuracy manually
-correct = 0
-for i in range(len(X_test)):
-    x = X_test[i]
-    prediction = kn.predict([x])[0]
-    if prediction == y_test[i]:
-        correct += 1
+    # Perform K-means clustering
+    kmeans_centers, kmeans_labels = kmeans_clustering(X, num_clusters)
 
-accuracy = correct / len(X_test)
-st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
+    # Perform EM (Gaussian Mixture Model) clustering
+    em_means, em_labels = em_clustering(X, num_components)
+
+    # Display results
+    st.subheader('K-means Clustering')
+    st.write('Centroids:')
+    st.write(kmeans_centers)
+    st.write('Cluster labels:')
+    st.write(kmeans_labels)
+
+    st.subheader('EM (Gaussian Mixture Model) Clustering')
+    st.write('Means:')
+    st.write(em_means)
+    st.write('Cluster labels:')
+    st.write(em_labels)
+
+if __name__ == '__main__':
+    main()
