@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 
-# Define the Iris dataset with the first 15 data points
+# Define the Iris dataset with the first 10 data points
 iris_data = {
     "data": np.array([
         [5.1, 3.5, 1.4, 0.2],
@@ -16,13 +16,8 @@ iris_data = {
         [5.0, 3.4, 1.5, 0.2],
         [4.4, 2.9, 1.4, 0.2],
         [4.9, 3.1, 1.5, 0.1],
-        [5.4, 3.7, 1.5, 0.2],
-        [4.8, 3.4, 1.6, 0.2],
-        [4.8, 3.0, 1.4, 0.1],
-        [4.3, 3.0, 1.1, 0.1],
-        [5.8, 4.0, 1.2, 0.2],
     ]),
-    "target": np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    "target": np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 }
 
 # Split the data into training and testing sets
