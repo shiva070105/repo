@@ -1,8 +1,7 @@
 import streamlit as st
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
+from scipy.spatial.distance import cdist
 
 # Function to generate synthetic data
 def generate_data(num_samples, num_features):
@@ -10,19 +9,31 @@ def generate_data(num_samples, num_features):
     X = np.random.randn(num_samples, num_features)
     return X
 
-# Function to perform KMeans clustering
-def kmeans_clustering(X, num_clusters):
-    kmeans = KMeans(n_clusters=num_clusters, random_state=0)
-    kmeans.fit(X)
-    y_kmeans = kmeans.predict(X)
-    return kmeans.cluster_centers_, y_kmeans
+# Function for basic K-means clustering
+def kmeans_clustering(X, num_clusters, max_iter=100):
+    np.random.seed(0)
+    centroids = X[np.random.choice(range(len(X)), num_clusters, replace=False)]
+    for _ in range(max_iter):
+        distances = cdist(X, centroids, 'euclidean')
+        labels = np.argmin(distances, axis=1)
+        new_centroids = np.array([X[labels == i].mean(axis=0) for i in range(num_clusters)])
+        if np.all(centroids == new_centroids):
+            break
+        centroids = new_centroids
+    return centroids, labels
 
-# Function to perform Gaussian Mixture Model clustering
-def gmm_clustering(X, num_components):
-    gmm = GaussianMixture(n_components=num_components, random_state=0)
-    gmm.fit(X)
-    y_gmm = gmm.predict(X)
-    return gmm.means_, y_gmm
+# Function for basic Gaussian Mixture Model clustering (using K-means initialization)
+def gmm_clustering(X, num_components, max_iter=100):
+    centroids, labels = kmeans_clustering(X, num_components)
+    for _ in range(max_iter):
+        probabilities = np.array([np.exp(-cdist(X, [mean], 'euclidean')**2) for mean in centroids])
+        probabilities = probabilities / probabilities.sum(axis=0)
+        labels = np.argmax(probabilities, axis=0)
+        new_centroids = np.array([X[labels == i].mean(axis=0) for i in range(num_components)])
+        if np.all(centroids == new_centroids):
+            break
+        centroids = new_centroids
+    return centroids, labels
 
 # Function to plot clustering results
 def plot_clusters(X, labels, centers, title, xlabel, ylabel):
