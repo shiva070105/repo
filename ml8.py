@@ -25,7 +25,7 @@ X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data
 
 # Define a K-Nearest Neighbors classifier manually
 class KNeighborsClassifierCustom:
-    def _init_(self, n_neighbors=1):
+    def __init__(self, n_neighbors=1):
         self.n_neighbors = n_neighbors
         self.X_train = None
         self.y_train = None
@@ -54,7 +54,7 @@ st.title("Iris Dataset KNN Classifier")
 st.write("### Iris Dataset")
 iris_df = pd.DataFrame(iris_data["data"], columns=["sepal length", "sepal width", "petal length", "petal width"])
 iris_df['target'] = iris_data["target"]
-st.write(iris_df.head())
+st.write(iris_df)
 
 # Display predictions
 st.write("### Predictions")
@@ -70,9 +70,13 @@ for i in range(len(X_test)):
 predictions_df = pd.DataFrame(results)
 st.write(predictions_df)
 
-# Display accuracy
-def accuracy_score(y_true, y_pred):
-    return np.mean(y_true == y_pred)
+# Calculate accuracy manually
+correct = 0
+for i in range(len(X_test)):
+    x = X_test[i]
+    prediction = kn.predict([x])[0]
+    if prediction == y_test[i]:
+        correct += 1
 
-accuracy = accuracy_score(y_test, kn.predict(X_test))
-st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
+accuracy = correct / len(X_test)
+st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
