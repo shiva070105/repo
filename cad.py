@@ -27,7 +27,7 @@ def learn(concepts, target):
     return specific_h, general_h
 
 def main():
-    st.title("Candidate Elimination Algorithm")
+    st.title("CLOUD STROMS - Candidate Elimination Algorithm")
 
     # Section to get input from the user
     st.header("Input Data")
