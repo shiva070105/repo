@@ -25,7 +25,7 @@ X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data
 
 # Define a K-Nearest Neighbors classifier manually
 class KNeighborsClassifierCustom:
-    def __init__(self, n_neighbors=1):
+    def _init_(self, n_neighbors=1):
         self.n_neighbors = n_neighbors
         self.X_train = None
         self.y_train = None
@@ -54,7 +54,7 @@ st.title("Iris Dataset KNN Classifier")
 st.write("### Iris Dataset")
 iris_df = pd.DataFrame(iris_data["data"], columns=["sepal length", "sepal width", "petal length", "petal width"])
 iris_df['target'] = iris_data["target"]
-st.write(iris_df)
+st.write(iris_df.head())
 
 # Display predictions
 st.write("### Predictions")
@@ -79,4 +79,4 @@ for i in range(len(X_test)):
         correct += 1
 
 accuracy = correct / len(X_test)
-st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
+st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
