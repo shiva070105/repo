@@ -1,9 +1,20 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+
+# Verify installation of scikit-learn
+try:
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
+except ImportError as e:
+    st.write("Error importing scikit-learn packages. Attempting to reinstall...")
+    import os
+    os.system('pip install scikit-learn')
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score
 
 # Function to encode features
 def encode_features(df, columns):
