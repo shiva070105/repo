@@ -1,24 +1,24 @@
+from sklearn.preprocessing import LabelEncoder
 import streamlit as st
 import pandas as pd
 
 # Verify installation of scikit-learn
 try:
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
+  from sklearn.naive_bayes import GaussianNB
+  from sklearn.model_selection import train_test_split
+  from sklearn.metrics import accuracy_score
 except ImportError as e:
-    st.error("Error importing scikit-learn packages. Please ensure scikit-learn is installed in your environment.")
-    raise e
+  st.error("Error importing scikit-learn packages. Please ensure scikit-learn is installed in your environment.")
+  raise e
 
 # Function to encode features
 def encode_features(df, columns):
-    encoders = {}
-    for column in columns:
-        encoder = LabelEncoder()
-        df[column] = encoder.fit_transform(df[column])
-        encoders[column] = encoder
-    return df, encoders
+  encoders = {}
+  for column in columns:
+    encoder = LabelEncoder()
+    df[column] = encoder.fit_transform(df[column])
+    encoders[column] = encoder
+  return df, encoders
 
 # Load data from CSV
 data = pd.read_csv('tennisdata.csv')
