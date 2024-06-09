@@ -29,17 +29,9 @@ def plot_clusters(X, labels, centers, title, xlabel, ylabel):
         for i in range(len(centers)):
             cluster_points = X[labels == i]
             st.write(f"Cluster {i + 1}")
-            st.write(cluster_points)
+            st.table(cluster_points)  # Display cluster points
             st.write(f"Center {i + 1}")
             st.write(centers[i])
-        scatter = {
-            'x': X[:, 0],
-            'y': X[:, 1],
-            'color': labels,
-            'size': [10] * len(X), # Adjust size if needed
-            'marker': {'color': 'red'}
-        }
-        scatter_plot = st.plotly_chart(scatter)
     else:
         # If number of features is not 2, show basic data output
         st.write("Clustering result:")
@@ -65,7 +57,7 @@ def main():
     # Display K-means results
     st.subheader('K-means Clustering')
     st.write('Centroids:')
-    st.write(kmeans_centers)
+    st.table(kmeans_centers)  # Display centroids
 
     plot_clusters(X, kmeans_labels, kmeans_centers, 'K-means Clustering', 'Feature 1', 'Feature 2')
 
