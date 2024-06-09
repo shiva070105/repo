@@ -47,8 +47,8 @@ class CandidateElimination:
         return self.S, self.G
 
 def main():
-    st.title("Team: Cyber Centurions")
-    st.subheader("Topic: Candidate Elimination Algorithm")
+    st.title("Candidate Elimination Algorithm")
+    st.subheader("Team: Cyber Centurions")
 
     # Example dataset
     data = [
@@ -58,17 +58,20 @@ def main():
         ['sunny', 'warm', 'high', 'strong', 'cool', 'change', 'yes']
     ]
 
+    st.subheader("Example Dataset:")
+    st.table(data)
+
     ce = CandidateElimination(num_attributes=len(data[0])-1)
     ce.fit(data)
     S, G = ce.get_hypotheses()
 
     st.subheader("Final Specific Hypothesis:")
-    for hypothesis in S:
-        st.write(hypothesis)
+    for i, hypothesis in enumerate(S):
+        st.write(f"Attribute {i+1}: {hypothesis}")
 
     st.subheader("Final General Hypothesis:")
-    for hypothesis in G:
-        st.write(hypothesis)
+    for i, hypothesis in enumerate(G):
+        st.write(f"Attribute {i+1}: {hypothesis}")
 
 if _name_ == "_main_":
     main()
