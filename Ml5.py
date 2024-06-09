@@ -5,48 +5,49 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
+# Function to encode features
+def encode_features(df, columns):
+    encoders = {}
+    for column in columns:
+        encoder = LabelEncoder()
+        df[column] = encoder.fit_transform(df[column])
+        encoders[column] = encoder
+    return df, encoders
+
 # Load data from CSV
 data = pd.read_csv('tennisdata.csv')
-st.write("The first 5 values of the data are:")
+st.write("The first 5 rows of the dataset are:")
 st.write(data.head())
 
-# Obtain Train data and Train output
-X = data.iloc[:,:-1]
-st.write("The first 5 values of train data are:")
-st.write(X.head())
+# Separate features (X) and target (y)
+X = data.iloc[:, :-1]
+y = data.iloc[:, -1]
 
-y = data.iloc[:,-1]
-st.write("The first 5 values of Train output are:")
+st.write("The first 5 rows of the features are:")
+st.write(X.head())
+st.write("The first 5 values of the target are:")
 st.write(y.head())
 
-# Convert them to numbers
-le_outlook = LabelEncoder()
-X['Outlook'] = le_outlook.fit_transform(X['Outlook'])
+# Encode the categorical features and target
+X, feature_encoders = encode_features(X, X.columns)
 
-le_Temperature = LabelEncoder()
-X['Temperature'] = le_Temperature.fit_transform(X['Temperature'])
+# Encode the target variable
+target_encoder = LabelEncoder()
+y = target_encoder.fit_transform(y)
 
-le_Humidity = LabelEncoder()
-X['Humidity'] = le_Humidity.fit_transform(X['Humidity'])
-
-le_Windy = LabelEncoder()
-X['Windy'] = le_Windy.fit_transform(X['Windy'])
-
-st.write("Now the Train data is:")
+st.write("Encoded features:")
 st.write(X.head())
-
-le_PlayTennis = LabelEncoder()
-y = le_PlayTennis.fit_transform(y)
-st.write("Now the Train output is:")
+st.write("Encoded target:")
 st.write(y)
 
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
 
-# Train the model
+# Initialize and train the Gaussian Naive Bayes classifier
 classifier = GaussianNB()
 classifier.fit(X_train, y_train)
 
-# Calculate accuracy
-accuracy = accuracy_score(classifier.predict(X_test), y_test)
-st.write("Accuracy is:", accuracy)
+# Make predictions and calculate accuracy
+y_pred = classifier.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+st.write("Accuracy of the model:", accuracy)
