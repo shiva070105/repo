@@ -66,12 +66,12 @@ def main():
     S, G = ce.get_hypotheses()
 
     st.subheader("Final Specific Hypothesis:")
-    for i, hypothesis in enumerate(S):
-        st.write(f"Attribute {i+1}: {hypothesis}")
+    for i, hypothesis_set in enumerate(S):
+        st.write(f"Attribute {i+1}: {hypothesis_set}")
 
     st.subheader("Final General Hypothesis:")
-    for i, hypothesis in enumerate(G):
-        st.write(f"Attribute {i+1}: {hypothesis}")
+    for i, hypothesis_set in enumerate(G):
+        st.write(f"Attribute {i+1}: {hypothesis_set}")
 
 if _name_ == "_main_":
     main()
