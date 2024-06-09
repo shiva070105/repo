@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 
@@ -36,10 +35,14 @@ if uploaded_file is not None:
         heart_disease[column] = le.transform(heart_disease[column])
         label_encoders[column] = le
 
-    # Split the data into training and testing sets
-    X = heart_disease.drop('heartdisease', axis=1)
-    y = heart_disease['heartdisease']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Split the data into training and testing sets manually
+    train_indices = [0, 1, 2, 3, 5, 7, 8]
+    test_indices = [4, 6, 9]
+
+    X_train = heart_disease.iloc[train_indices].drop('heartdisease', axis=1)
+    y_train = heart_disease.iloc[train_indices]['heartdisease']
+    X_test = heart_disease.iloc[test_indices].drop('heartdisease', axis=1)
+    y_test = heart_disease.iloc[test_indices]['heartdisease']
 
     # Train a logistic regression model
     model = LogisticRegression()
