@@ -21,7 +21,7 @@ def download_and_extract_data(url):
     response = requests.get(url)
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         z.extractall()
-        with open(z.namelist()[0], 'r') as file:
+        with open(z.namelist()[0], 'r', encoding='ISO-8859-1') as file:
             df = pd.read_csv(file, sep='\t', names=["sentiment", "text"])
     return df
 
