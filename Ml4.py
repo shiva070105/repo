@@ -1,125 +1,74 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import confusion_matrix, accuracy_score
-from sklearn.tree import export_graphviz
-import graphviz
 import streamlit as st
-import missingno as mn
-import io
+import numpy as np
 
-# Set the page configuration
-st.set_page_config(page_title="Credit Card Fraud Detection", layout="wide")
+# Define the neural network class
+class Neural_Network(object):
+    def __init__(self):
+        self.inputSize = 2
+        self.outputSize = 1
+        self.hiddenSize = 3
+        self.W1 = np.random.randn(self.inputSize, self.hiddenSize)
+        self.W2 = np.random.randn(self.hiddenSize, self.outputSize)
 
-# Sidebar for file upload and model selection
-st.sidebar.title("Upload and Configure")
-uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
+    def forward(self, X):
+        self.z = np.dot(X, self.W1)
+        self.z2 = self.sigmoid(self.z)
+        self.z3 = np.dot(self.z2, self.W2)
+        o = self.sigmoid(self.z3)
+        return o 
 
-# Header for the main page
-st.title("Credit Card Fraud Detection")
+    def sigmoid(self, s):
+        return 1 / (1 + np.exp(-s))
 
-if uploaded_file is not None:
-    # Read the dataset
-    df = pd.read_csv(uploaded_file)
+    def sigmoidPrime(self, s):
+        return s * (1 - s)
+    
+    def backward(self, X, y, o):
+        self.o_error = y - o
+        self.o_delta = self.o_error * self.sigmoidPrime(o)
+        self.z2_error = self.o_delta.dot(self.W2.T)
+        self.z2_delta = self.z2_error * self.sigmoidPrime(self.z2)
+        self.W1 += X.T.dot(self.z2_delta)
+        self.W2 += self.z2.T.dot(self.o_delta)
 
-    # Show the first five rows of the dataset
-    st.header("Dataset Preview")
-    st.write(df.head())
+    def train(self, X, y):
+        o = self.forward(X)
+        self.backward(X, y, o)
 
-    # Display dataset information
-    st.header("Dataset Information")
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    s = buffer.getvalue()
-    st.text(s)
+# Initialize data
+X = np.array(([2, 9], [1, 5], [3, 6]), dtype=float)     # X = (hours sleeping, hours studying)
+y = np.array(([92], [86], [89]), dtype=float)           # y = score on test
 
-    # Find and display missing values
-    st.header("Missing Values")
-    st.write(df.isna().sum())
+# Scale units
+X = X / np.amax(X, axis=0)        # maximum of X array
+y = y / 100                       # max test score is 100
 
-    # Visualize missing values
-    st.subheader("Missing Values Visualization")
-    fig, ax = plt.subplots()
-    mn.bar(df, ax=ax)
-    st.pyplot(fig)
+# Initialize the neural network
+NN = Neural_Network()
 
-    X = df.drop('fraud', axis=1)
-    Y = df['fraud']
+# Streamlit app
+def main():
+    st.title("Neural Network for Predicting Test Scores")
 
-    st.header("Feature Analysis")
-    st.subheader("Boxplot of Features")
-    fig, axes = plt.subplots(5, 5, figsize=(20, 20))
-    for i, col in enumerate(X.columns):
-        if i < 25:  # Adjust according to the number of features
-            sns.boxplot(X[col], ax=axes[i//5, i%5])
-            axes[i//5, i%5].set_xlabel(col, fontsize=20)
-    plt.tight_layout()
-    st.pyplot(fig)
+    if st.button("Train Neural Network"):
+        # Train the neural network
+        NN.train(X, y)
 
-    # Split X and Y
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+        # Forward pass to get the prediction
+        predicted_output = NN.forward(X)
 
-    # Standardize the data
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+        # Calculate the loss
+        loss = np.mean(np.square(y - predicted_output))
 
-    # Decision Tree classifier
-    clf = DecisionTreeClassifier(criterion="entropy", random_state=0)
-    clf.fit(X_train, Y_train)
+        # Display the results
+        st.write("### Input Data (Hours Sleeping, Hours Studying):")
+        st.write(X)
+        st.write("### Actual Output (Test Scores):")
+        st.write(y)
+        st.write("### Predicted Output (Test Scores):")
+        st.write(predicted_output)
+        st.write("### Loss:")
+        st.write(loss)
 
-    # Predict the values of testing
-    Y_pred_dt = clf.predict(X_test)
-
-    # Calculate and display the confusion matrix
-    st.header("Model Performance")
-    st.subheader("Decision Tree")
-    st.write("Confusion Matrix:")
-    cm_dt = confusion_matrix(Y_test, Y_pred_dt)
-    st.write(cm_dt)
-
-    # Calculate and display the accuracy score
-    accuracy_dt = accuracy_score(Y_test, Y_pred_dt)
-    st.write("Accuracy:", accuracy_dt)
-
-    # Visualize the decision tree
-    st.write("Decision Tree Visualization:")
-    dot_data = export_graphviz(clf, feature_names=X.columns, filled=True)
-    st.graphviz_chart(dot_data)
-
-    # Naive Bayes Algorithm
-    clf1 = GaussianNB()
-
-    # Train the model
-    clf1.fit(X_train, Y_train)
-
-    # Predict the values of testing
-    Y_pred_nb = clf1.predict(X_test)
-
-    # Calculate and display the confusion matrix
-    st.subheader("Naive Bayes")
-    st.write("Confusion Matrix:")
-    cm_nb = confusion_matrix(Y_test, Y_pred_nb)
-    st.write(cm_nb)
-
-    # Calculate and display the accuracy score
-    accuracy_nb = accuracy_score(Y_test, Y_pred_nb)
-    st.write("Accuracy:", accuracy_nb)
-
-    # Comparing the accuracy scores
-    accuracies = [accuracy_dt * 100, accuracy_nb * 100]
-    labels = ['Decision Tree', 'Naive Bayes']
-
-    # Display the accuracy comparison bar chart
-    st.subheader("Accuracy Comparison")
-    fig, ax = plt.subplots()
-    ax.bar(labels, accuracies, color=['blue', 'green'])
-    ax.set_ylabel('Accuracy (%)')
-    ax.set_title('Comparison of Model Accuracies')
-    st.pyplot(fig)
-else:
-    st.info("Please upload a CSV file to proceed.")
+if __name__ == '__main__':
+    main()
