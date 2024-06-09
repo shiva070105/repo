@@ -19,9 +19,21 @@ if uploaded_file is not None:
     # Preprocess the data
     label_encoders = {}
     categorical_columns = ['age', 'Gender', 'Family', 'diet', 'Lifestyle', 'cholestrol']
+    
+    # Define standard categorical values
+    categorical_values = {
+        'age': ['SuperSeniorCitizen', 'SeniorCitizen', 'MiddleAged', 'Youth', 'Teen'],
+        'Gender': ['Male', 'Female'],
+        'Family': ['Yes', 'No'],
+        'diet': ['High', 'Medium'],
+        'Lifestyle': ['Athlete', 'Active', 'Moderate', 'Sedentary'],
+        'cholestrol': ['High', 'BorderLine', 'Normal']
+    }
+    
     for column in categorical_columns:
         le = LabelEncoder()
-        heart_disease[column] = le.fit_transform(heart_disease[column])
+        le.fit(categorical_values[column])
+        heart_disease[column] = le.transform(heart_disease[column])
         label_encoders[column] = le
 
     # Split the data into training and testing sets
@@ -36,12 +48,12 @@ if uploaded_file is not None:
     # User inputs
     st.write('### Enter the following details:')
     
-    age = st.selectbox('Age', ['SuperSeniorCitizen', 'SeniorCitizen', 'MiddleAged', 'Youth', 'Teen'])
-    gender = st.selectbox('Gender', ['Male', 'Female'])
-    family_history = st.selectbox('Family History', ['Yes', 'No'])
-    diet = st.selectbox('Diet', ['High', 'Medium'])
-    lifestyle = st.selectbox('Lifestyle', ['Athlete', 'Active', 'Moderate', 'Sedentary'])
-    cholestrol = st.selectbox('Cholestrol', ['High', 'BorderLine', 'Normal'])
+    age = st.selectbox('Age', categorical_values['age'])
+    gender = st.selectbox('Gender', categorical_values['Gender'])
+    family_history = st.selectbox('Family History', categorical_values['Family'])
+    diet = st.selectbox('Diet', categorical_values['diet'])
+    lifestyle = st.selectbox('Lifestyle', categorical_values['Lifestyle'])
+    cholestrol = st.selectbox('Cholestrol', categorical_values['cholestrol'])
 
     # Convert user inputs to appropriate format
     user_input = pd.DataFrame({
@@ -67,4 +79,4 @@ if uploaded_file is not None:
         st.write("Prediction Probability:")
         st.write(f'No: {prediction_proba[0][0]:.2f}, Yes: {prediction_proba[0][1]:.2f}')
 else:
-    st.write("Please upload a CSV file to proceed.")
+    st.write("Please upload a CSV file to proceed.")
