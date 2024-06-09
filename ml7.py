@@ -4,50 +4,60 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 
-# Define the Iris dataset manually
+# Define the smaller Iris dataset
 iris_data = {
     "data": np.array([
         [5.1, 3.5, 1.4, 0.2],
         [4.9, 3.0, 1.4, 0.2],
-        # ... (rest of the Iris data points)
-        [6.8, 3.0, 5.0, 1.7],
+        [4.7, 3.2, 1.3, 0.2],
+        [4.6, 3.1, 1.5, 0.2],
+        [5.0, 3.6, 1.4, 0.2],
+        [5.4, 3.9, 1.7, 0.4],
+        [4.6, 3.4, 1.4, 0.3],
+        [5.0, 3.4, 1.5, 0.2],
+        [4.4, 2.9, 1.4, 0.2],
+        [4.9, 3.1, 1.5, 0.1]
     ]),
-    "target": np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]),
+    "target": np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+    "target_names": np.array(['setosa'])
 }
 
-# Convert data and target to pandas DataFrame
-data = pd.DataFrame(iris_data["data"], columns=["Sepal length", "Sepal width", "Petal length", "Petal width"])
-target = iris_data["target"]
+# Create a DataFrame
+df = pd.DataFrame(data=iris_data['data'], columns=['sepal_length', 'sepal_width', 'petal_length', 'petal_width'])
 
-# Split data into features (X) and target (y)
-X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.20, random_state=42)
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(iris_data['data'], iris_data['target'], test_size=0.2, random_state=42)
 
-# Define the KNeighborsClassifier model
-knn = KNeighborsClassifier(n_neighbors=5)
+# Initialize the KNN classifier
+k = 3
+knn_classifier = KNeighborsClassifier(n_neighbors=k)
+knn_classifier.fit(X_train, y_train)
 
-# Train the model on the training data
-knn.fit(X_train, y_train)
+# Streamlit app
+st.title('Iris Flower Species Prediction')
+st.sidebar.header('User Input Parameters')
 
-# Title and description for the app
-st.title("KNeighborsClassifier App")
-st.write("This app allows you to explore K-Nearest Neighbors classification on the Iris dataset.")
+# Function to get user inputs
+def get_user_input():
+    sepal_length = st.sidebar.slider('Sepal length', float(df['sepal_length'].min()), float(df['sepal_length'].max()), float(df['sepal_length'].mean()))
+    sepal_width = st.sidebar.slider('Sepal width', float(df['sepal_width'].min()), float(df['sepal_width'].max()), float(df['sepal_width'].mean()))
+    petal_length = st.sidebar.slider('Petal length', float(df['petal_length'].min()), float(df['petal_length'].max()), float(df['petal_length'].mean()))
+    petal_width = st.sidebar.slider('Petal width', float(df['petal_width'].min()), float(df['petal_width'].max()), float(df['petal_width'].mean()))
+    return np.array([[sepal_length, sepal_width, petal_length, petal_width]])
 
-# User input for prediction
-user_input = st.text_input("Enter new data point (comma separated values):")
+# Get user input
+user_input = get_user_input()
 
-if user_input:
-  # Convert user input to a list of floats
-  user_data = np.array([float(x) for x in user_input.split(",")])
+# Predicting the output
+prediction = knn_classifier.predict(user_input)
+prediction_proba = knn_classifier.predict_proba(user_input)
 
-  # Reshape the user data for prediction
-  user_data = user_data.reshape(1, -1)
+# Displaying the user input and prediction
+st.subheader('User Input Parameters')
+st.write(df)
+st.subheader('Prediction')
+st.write(iris_data['target_names'][prediction][0])
 
-  # Make prediction using the trained model
-  prediction = knn.predict(user_data)[0]
-
-  # Display prediction result
-  st.write(f"Predicted class: {prediction}")
-
-# Display model accuracy on test data
-accuracy = knn.score(X_test, y_test)
-st.write(f"Model Accuracy: {accuracy:.2f}")
+# Display the probability of each class
+st.subheader('Prediction Probability')
+st.write(iris_data['target_names'][0], prediction_proba[0][0])
