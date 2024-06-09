@@ -37,7 +37,7 @@ def main():
     kmeans_centers, kmeans_labels = kmeans_clustering(X, num_clusters)
 
     # Display K-means results
-    st.subheader('K-means Clustering')
+    st.subheader('CLOUD STROMS - K-means Clustering')
     st.write('Centroids:')
     st.write(kmeans_centers)
 
