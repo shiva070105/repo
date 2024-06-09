@@ -1,14 +1,15 @@
 import streamlit as st
-import pandas as pd
 from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, classification_report
 
-# Load Iris dataset
+# Load the Iris dataset
 iris = load_iris()
-X = pd.DataFrame(iris.data, columns=iris.feature_names)
-y = pd.Series(iris.target, name='species')
+
+# Display information about the dataset
+st.write("Description of the Iris dataset:")
+st.write(iris.DESCR)
+
+# ... (rest of your Streamlit app code using the iris data)
+
 
 # Sidebar
 st.sidebar.title('Naive Bayes Classifier')
