@@ -1,5 +1,4 @@
 import streamlit as st
-from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 
@@ -20,8 +19,12 @@ iris_data = {
     "target": np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 }
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data["target"], random_state=0)
+# Manually split the data into training and testing sets
+# Using the first 7 data points for training and the last 3 for testing
+X_train = iris_data["data"][:7]
+X_test = iris_data["data"][7:]
+y_train = iris_data["target"][:7]
+y_test = iris_data["target"][7:]
 
 # Define a K-Nearest Neighbors classifier manually
 class KNeighborsClassifierCustom:
