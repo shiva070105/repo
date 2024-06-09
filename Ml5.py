@@ -13,7 +13,7 @@ st.title("Naive Bayes Classifier for IMDb Review Classification")
 st.write("This app uses a Naive Bayes classifier to predict whether an IMDb review is positive or negative.")
 
 # URL for the dataset
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip"
+url = "https://github.com/shiva070105/repo/blob/main/tennisdata.csv"
 
 # Function to download and extract data
 @st.cache_data
