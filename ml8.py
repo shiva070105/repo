@@ -20,6 +20,30 @@ def kmeans_clustering(X, num_clusters, max_iter=100):
         centroids = new_centroids
     return centroids, labels
 
+# Function to plot clustering results
+def plot_clusters(X, labels, centers, title, xlabel, ylabel):
+    st.write(f"## {title}")
+    if X.shape[1] == 2:
+        # 2D plot
+        st.write(f"### {xlabel} vs {ylabel}")
+        for i in range(len(centers)):
+            cluster_points = X[labels == i]
+            st.write(f"Cluster {i + 1}")
+            st.write(cluster_points)
+            st.write(f"Center {i + 1}")
+            st.write(centers[i])
+        scatter_plot = st.pyplot(plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis', s=50))
+        plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.title(title)
+        st.pyplot(scatter_plot)
+    else:
+        # If number of features is not 2, show basic data output
+        st.write("Clustering result:")
+        st.write("Cluster labels:")
+        st.write(labels)
+
 # Main Streamlit app
 def main():
     st.title('Clustering Algorithms Demo')
@@ -37,30 +61,11 @@ def main():
     kmeans_centers, kmeans_labels = kmeans_clustering(X, num_clusters)
 
     # Display K-means results
-    st.subheader('CLOUD STROMS - K-means Clustering')
+    st.subheader('K-means Clustering')
     st.write('Centroids:')
     st.write(kmeans_centers)
 
-    # Plotting the clusters using Streamlit's built-in chart
-    import pandas as pd
-
-    data = pd.DataFrame(X, columns=[f'Feature {i+1}' for i in range(X.shape[1])])
-    data['Cluster'] = kmeans_labels
-
-    if num_features >= 2:
-        st.write('Scatter plot of the first two features:')
-        st.write(st.altair_chart(
-            alt.Chart(data).mark_circle(size=60).encode(
-                x='Feature 1', y='Feature 2', color='Cluster:N'
-            ).interactive()
-        ))
-    else:
-        st.write('Histogram of the first feature:')
-        st.write(st.altair_chart(
-            alt.Chart(data).mark_bar().encode(
-                x='Feature 1', y='count()', color='Cluster:N'
-            ).interactive()
-        ))
+    plot_clusters(X, kmeans_labels, kmeans_centers, 'K-means Clustering', 'Feature 1', 'Feature 2')
 
 if __name__ == '__main__':
     main()
