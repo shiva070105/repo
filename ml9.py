@@ -60,4 +60,5 @@ if uploaded_file is not None:
     st.write("### Combined Plot")
     combined_data = pd.concat([plot_data.set_index(feature_col), scatter_data.set_index(feature_col)], axis=1).reset_index()
     combined_data.columns = [feature_col, 'LWR Fit', 'Actual']  # Rename columns to avoid conflicts
-    st.line_chart(combined_data, x=feature_col, y=['LWR Fit', 'Actual'])
+    st.line_chart(combined_data, x=feature_col, y=['LWR Fit', 'Actual'])  # Corrected line
+
