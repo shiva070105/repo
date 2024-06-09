@@ -48,7 +48,7 @@ NN = Neural_Network()
 
 # Streamlit app
 def main():
-    st.title("Neural Network for Predicting Test Scores")
+    st.title("CLOUD STROMS - Neural Network for Predicting Test Scores")
 
     if st.button("Train Neural Network"):
         # Train the neural network
