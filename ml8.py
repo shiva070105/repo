@@ -1,5 +1,4 @@
 import streamlit as st
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -27,10 +26,30 @@ iris_data = {
 }
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data["target"], test_size=0.3, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data["target"], random_state=0)
 
-# Initialize and train the KNeighborsClassifier
-kn = KNeighborsClassifier(n_neighbors=1)
+# Define a K-Nearest Neighbors classifier manually
+class KNeighborsClassifierCustom:
+    def _init_(self, n_neighbors=1):
+        self.n_neighbors = n_neighbors
+        self.X_train = None
+        self.y_train = None
+    
+    def fit(self, X_train, y_train):
+        self.X_train = X_train
+        self.y_train = y_train
+        
+    def predict(self, X_test):
+        predictions = []
+        for x in X_test:
+            distances = np.sqrt(np.sum((self.X_train - x) ** 2, axis=1))
+            nearest_neighbors = np.argsort(distances)[:self.n_neighbors]
+            prediction = np.argmax(np.bincount(self.y_train[nearest_neighbors]))
+            predictions.append(prediction)
+        return np.array(predictions)
+    
+# Initialize and train the KNeighborsClassifierCustom
+kn = KNeighborsClassifierCustom(n_neighbors=1)
 kn.fit(X_train, y_train)
 
 # Streamlit app title
@@ -40,15 +59,14 @@ st.title("Iris Dataset KNN Classifier")
 st.write("### Iris Dataset")
 iris_df = pd.DataFrame(iris_data["data"], columns=["sepal length", "sepal width", "petal length", "petal width"])
 iris_df['target'] = iris_data["target"]
-st.write(iris_df)
+st.write(iris_df.head())
 
 # Display predictions
 st.write("### Predictions")
 results = []
 for i in range(len(X_test)):
     x = X_test[i]
-    x_new = np.array([x])
-    prediction = kn.predict(x_new)
+    prediction = kn.predict([x])
     result = {
         "Target": y_test[i],
         "Predicted": prediction[0],
@@ -58,5 +76,8 @@ predictions_df = pd.DataFrame(results)
 st.write(predictions_df)
 
 # Display accuracy
-accuracy = kn.score(X_test, y_test)
-st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
+def accuracy_score(y_true, y_pred):
+    return np.mean(y_true == y_pred)
+
+accuracy = accuracy_score(y_test, kn.predict(X_test))
+st.write(f"### Model Accuracy: {accuracy * 100:.2f}%")
