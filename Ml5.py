@@ -8,13 +8,8 @@ try:
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score
 except ImportError as e:
-    st.write("Error importing scikit-learn packages. Attempting to reinstall...")
-    import os
-    os.system('pip install scikit-learn')
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
+    st.error("Error importing scikit-learn packages. Please ensure scikit-learn is installed in your environment.")
+    raise e
 
 # Function to encode features
 def encode_features(df, columns):
