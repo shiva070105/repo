@@ -23,7 +23,7 @@ class CandidateElimination:
             # Remove more general hypotheses inconsistent with the example
             remove_indices = []
             for j in range(len(self.G[i])):
-                if self.G[i].pop() not in instance:
+                if list(self.G[i])[j] not in instance:
                     remove_indices.append(j)
             for index in remove_indices:
                 if index < len(self.G[i]):  # Check if index is still within bounds
@@ -34,7 +34,7 @@ class CandidateElimination:
             # Remove more specific hypotheses inconsistent with the example
             remove_indices = []
             for j in range(len(self.S[i])):
-                if self.S[i].pop() != instance[i]:
+                if list(self.S[i])[j] != instance[i]:
                     remove_indices.append(j)
             for index in remove_indices:
                 if index < len(self.S[i]):  # Check if index is still within bounds
@@ -71,4 +71,4 @@ def main():
         st.write(hypothesis)
 
 if _name_ == "_main_":
-    main()
+    main()
