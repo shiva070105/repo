@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 
@@ -27,8 +27,11 @@ if uploaded_file is not None:
     # Split the data into training and testing sets
     X = heart_disease.drop('heartdisease', axis=1)
     y = heart_disease['heartdisease']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-
+    # Train a logistic regression model
+    model = LogisticRegression()
+    model.fit(X_train, y_train)
 
     # User inputs
     st.write('### Enter the following details:')
@@ -38,7 +41,7 @@ if uploaded_file is not None:
     family_history = st.selectbox('Family History', ['Yes', 'No'])
     diet = st.selectbox('Diet', ['High', 'Medium'])
     lifestyle = st.selectbox('Lifestyle', ['Athlete', 'Active', 'Moderate', 'Sedentary'])
-    cholestrol = st.selectbox('Cholesterol', ['High', 'BorderLine', 'Normal'])
+    cholestrol = st.selectbox('Cholestrol', ['High', 'BorderLine', 'Normal'])
 
     # Convert user inputs to appropriate format
     user_input = pd.DataFrame({
@@ -53,8 +56,15 @@ if uploaded_file is not None:
     for column in user_input.columns:
         user_input[column] = label_encoders[column].transform(user_input[column])
 
-   
+    # Predict heart disease
+    if st.button("Predict"):
+        prediction = model.predict(user_input)
+        prediction_proba = model.predict_proba(user_input)
 
-      
+        # Display the prediction
+        st.write("Prediction for Heart Disease:")
+        st.write('Yes' if prediction[0] == 1 else 'No')
+        st.write("Prediction Probability:")
+        st.write(f'No: {prediction_proba[0][0]:.2f}, Yes: {prediction_proba[0][1]:.2f}')
 else:
-    st.write("Please upload a CSV file to proceed.")
+    st.write("Please upload a CSV file to proceed.")
