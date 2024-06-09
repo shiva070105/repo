@@ -32,12 +32,14 @@ def plot_clusters(X, labels, centers, title, xlabel, ylabel):
             st.write(cluster_points)
             st.write(f"Center {i + 1}")
             st.write(centers[i])
-        scatter_plot = st.pyplot(plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis', s=50))
-        plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.title(title)
-        st.pyplot(scatter_plot)
+        scatter = {
+            'x': X[:, 0],
+            'y': X[:, 1],
+            'color': labels,
+            'size': [10] * len(X), # Adjust size if needed
+            'marker': {'color': 'red'}
+        }
+        scatter_plot = st.plotly_chart(scatter)
     else:
         # If number of features is not 2, show basic data output
         st.write("Clustering result:")
