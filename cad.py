@@ -1,55 +1,74 @@
-import numpy as np
-import pandas as pd
 import streamlit as st
 
-def learn(concepts, target):
-    specific_h = concepts[0].copy()
-    general_h = [["?" for _ in range(len(specific_h))] for _ in range(len(specific_h))]
-    
-    for i, h in enumerate(concepts):
-        if target[i] == "Yes":
-            for x in range(len(specific_h)):
-                if h[x] != specific_h[x]:
-                    specific_h[x] = '?'
-                    general_h[x][x] = '?'
+class CandidateElimination:
+    def _init_(self, num_attributes):
+        self.S = [set() for _ in range(num_attributes)]  # most specific hypothesis
+        self.G = [set() for _ in range(num_attributes)]  # most general hypothesis
+        self.num_attributes = num_attributes
 
-        if target[i] == "No":
-            for x in range(len(specific_h)):
-                if h[x] != specific_h[x]:
-                    general_h[x][x] = specific_h[x]
-                else:
-                    general_h[x][x] = '?'
+    def fit(self, data):
+        for instance in data:
+            target = instance[-1]  # Assuming the last attribute is the target
 
-    indices = [i for i, val in enumerate(general_h) if val == ['?', '?', '?', '?', '?', '?']]
-    for i in indices:
-        general_h.remove(['?', '?', '?', '?', '?', '?'])
-    
-    return specific_h, general_h
+            if target == "yes":  # Positive example
+                self.specialize(instance[:-1])
+            else:  # Negative example
+                self.generalize(instance[:-1])
+
+    def specialize(self, instance):
+        for i in range(len(instance)):
+            if instance[i] not in self.S[i]:
+                self.S[i].add(instance[i])
+
+            # Remove more general hypotheses inconsistent with the example
+            remove_indices = []
+            for j in range(len(self.G[i])):
+                if self.G[i].pop() not in instance:
+                    remove_indices.append(j)
+            for index in remove_indices:
+                if index < len(self.G[i]):  # Check if index is still within bounds
+                    self.G[i].pop(index)
+
+    def generalize(self, instance):
+        for i in range(len(instance)):
+            # Remove more specific hypotheses inconsistent with the example
+            remove_indices = []
+            for j in range(len(self.S[i])):
+                if self.S[i].pop() != instance[i]:
+                    remove_indices.append(j)
+            for index in remove_indices:
+                if index < len(self.S[i]):  # Check if index is still within bounds
+                    self.S[i].pop(index)
+
+            if instance[i] not in self.G[i]:
+                self.G[i].add(instance[i])
+
+    def get_hypotheses(self):
+        return self.S, self.G
 
 def main():
-    st.title("CLOUD STROMS - Candidate Elimination Algorithm")
+    st.title("Team: Cyber Centurions")
+    st.subheader("Topic: Candidate Elimination Algorithm")
 
-    # Section to get input from the user
-    st.header("Input Data")
-    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
-    if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file)
-        st.write("Input Data:")
-        st.write(data)
+    # Example dataset
+    data = [
+        ['sunny', 'warm', 'normal', 'strong', 'warm', 'same', 'yes'],
+        ['sunny', 'warm', 'high', 'strong', 'warm', 'same', 'yes'],
+        ['rainy', 'cold', 'high', 'strong', 'warm', 'change', 'no'],
+        ['sunny', 'warm', 'high', 'strong', 'cool', 'change', 'yes']
+    ]
 
-        # Separating concept features from Target
-        concepts = np.array(data.iloc[:,0:-1])
-        target = np.array(data.iloc[:,-1])
+    ce = CandidateElimination(num_attributes=len(data[0])-1)
+    ce.fit(data)
+    S, G = ce.get_hypotheses()
 
-        # Call the learn function
-        s_final, g_final = learn(concepts, target)
+    st.subheader("Final Specific Hypothesis:")
+    for hypothesis in S:
+        st.write(hypothesis)
 
-        # Display final specific and general hypotheses in tabular form
-        st.header("Final Specific Hypothesis")
-        st.write(pd.DataFrame([s_final]))
-
-        st.header("Final General Hypothesis")
-        st.write(pd.DataFrame(g_final))
+    st.subheader("Final General Hypothesis:")
+    for hypothesis in G:
+        st.write(hypothesis)
 
 if _name_ == "_main_":
     main()
