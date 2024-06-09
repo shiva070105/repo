@@ -1,82 +1,44 @@
+# import necessary libarities
 import pandas as pd
-import streamlit as st
-import requests
-import zipfile
-import io
+from sklearn import tree
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+
+# load data from CSV
+data = pd.read_csv('tennisdata.csv')
+print("THe first 5 values of data is :\n",data.head())
+
+# obtain Train data and Train output
+X = data.iloc[:,:-1]
+print("\nThe First 5 values of train data is\n",X.head())
+
+y = data.iloc[:,-1]
+print("\nThe first 5 values of Train output is\n",y.head())
+
+# Convert then in numbers 
+le_outlook = LabelEncoder()
+X.Outlook = le_outlook.fit_transform(X.Outlook)
+
+le_Temperature = LabelEncoder()
+X.Temperature = le_Temperature.fit_transform(X.Temperature)
+
+le_Humidity = LabelEncoder()
+X.Humidity = le_Humidity.fit_transform(X.Humidity)
+
+le_Windy = LabelEncoder()
+X.Windy = le_Windy.fit_transform(X.Windy)
+
+print("\nNow the Train data is :\n",X.head())
+
+le_PlayTennis = LabelEncoder()
+y = le_PlayTennis.fit_transform(y)
+print("\nNow the Train output is\n",y)
+
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn import metrics
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.20)
 
-# Title and introduction
-st.title("Naive Bayes Classifier for IMDb Review Classification")
-st.write("This app uses a Naive Bayes classifier to predict whether an IMDb review is positive or negative.")
+classifier = GaussianNB()
+classifier.fit(X_train,y_train)
 
-# URL for the dataset
-url = "https://github.com/shiva070105/repo/blob/main/tennisdata.csv"
-
-# Function to download and extract data
-@st.cache_data
-def download_and_extract_data(url):
-    response = requests.get(url)
-    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-        z.extractall()
-        with open(z.namelist()[0], 'r', encoding='ISO-8859-1') as file:
-            df = pd.read_csv(file, sep='\t', names=["sentiment", "text"])
-    return df
-
-# Download and extract the dataset
-df = download_and_extract_data(url)
-
-# Display the first five rows of the dataset
-st.subheader("First Five Rows of the Dataset")
-st.write(df.head())
-
-# Dataset information
-st.subheader("Dataset Information")
-buffer = io.StringIO()
-df.info(buf=buffer)
-s = buffer.getvalue()
-st.text(s)
-
-# Check for missing values
-st.subheader("Missing Values")
-st.write(df.isna().sum())
-
-# Map sentiment to numerical values
-df['snum'] = df.sentiment.map({'ham': 1, 'spam': 0})
-
-# Split the dataset into features and target variable
-x = df['text']
-y = df['snum']
-
-# Split the data into training and test sets
-xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.3, random_state=42)
-
-# Initialize the CountVectorizer
-cv = CountVectorizer()
-xtrain_dtm = cv.fit_transform(xtrain)
-xtest_dtm = cv.transform(xtest)
-
-# Initialize the MultinomialNB classifier
-clf = MultinomialNB().fit(xtrain_dtm, ytrain)
-
-# Predict the test set results
-predicted = clf.predict(xtest_dtm)
-
-# Display the confusion matrix
-st.subheader("Confusion Matrix")
-cm = metrics.confusion_matrix(ytest, predicted)
-st.write(cm)
-
-# Display the accuracy score
-st.subheader("Accuracy Score")
-accuracy = metrics.accuracy_score(ytest, predicted)
-st.write(f"Accuracy: {accuracy:.2f}")
-
-# Display precision and recall
-st.subheader("Precision and Recall")
-precision = metrics.precision_score(ytest, predicted, average='micro')
-recall = metrics.recall_score(ytest, predicted, average='micro')
-st.write(f"Precision: {precision:.2f}")
-st.write(f"Recall: {recall:.2f}")
+from sklearn.metrics import accuracy_score
+print("Accuracy is:",accuracy_score(classifier.predict(X_test),y_test))
